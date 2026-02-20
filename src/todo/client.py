@@ -24,7 +24,7 @@ def _load_config(data_dir: Path) -> dict:
     path = data_dir / "configs" / "api.json"
     if path.exists():
         return json.loads(path.read_text())
-    return {"host": "localhost", "port": 8000}
+    return {"host": "localhost", "port": 8001}
 
 
 def _base_url(cfg: dict) -> str:

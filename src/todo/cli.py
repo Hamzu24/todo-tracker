@@ -29,7 +29,7 @@ def main(argv: list[str] | None = None) -> None:
         help="Server action (default: start)",
     )
     serve_parser.add_argument("--host", default="0.0.0.0")
-    serve_parser.add_argument("--port", type=int, default=8000)
+    serve_parser.add_argument("--port", type=int, default=8001)
 
     # ── todo run ──
     run_parser = sub.add_parser("run", help="Run pipeline operations")
@@ -56,7 +56,7 @@ def main(argv: list[str] | None = None) -> None:
     elif args.group == "run":
         if args.command == "load":
             from todo.joplin import load_from_joplin
-            load_from_joplin(data_dir, "http://localhost:8000")
+            load_from_joplin(data_dir, "http://localhost:8001")
 
     # ── query ──
     elif args.group == "query":
