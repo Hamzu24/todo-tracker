@@ -191,6 +191,16 @@ def cmd_edit(base: str, task_id: int) -> None:
                   + (f"  ({t['context']})" if t['context'] else ""))
 
 
+def cmd_add(base: str, date: str, headline: str, context: str) -> None:
+    resp = _post(f"{base}/tasks", {"date": date, "headline": headline, "context": context})
+    t = resp.json()
+    console.print(f"[green]Created task {t['id']}:[/green]")
+    label, style = _relative_date(t["date"])
+    date_display = f"[{style}]{label}[/{style}]" if style else label
+    console.print(f"  {date_display}  {t['headline']}"
+                  + (f"  ({t['context']})" if t['context'] else ""))
+
+
 def cmd_delete(base: str, task_id: int) -> None:
     resp = _delete(f"{base}/tasks/{task_id}")
     console.print(f"[green]Deleted task {task_id}.[/green]")
@@ -226,6 +236,12 @@ def main(argv: list[str] | None = None) -> None:
     run_sub = run_parser.add_subparsers(dest="command", required=True)
     run_sub.add_parser("load", help="Load tasks from Joplin")
 
+    # ── todoq add ──
+    add_parser = sub.add_parser("add", help="Add a new task")
+    add_parser.add_argument("date", help="Due date (YYYY-MM-DD)")
+    add_parser.add_argument("headline", help="Task headline")
+    add_parser.add_argument("context", nargs="?", default="", help="Optional context")
+
     # ── todoq edit ──
     edit_parser = sub.add_parser("edit", help="Edit a task in $EDITOR")
     edit_parser.add_argument("id", type=int, help="Task ID to edit")
@@ -248,6 +264,9 @@ def main(argv: list[str] | None = None) -> None:
     elif args.group == "run":
         if args.command == "load":
             cmd_run_load(base)
+
+    elif args.group == "add":
+        cmd_add(base, args.date, args.headline, args.context)
 
     elif args.group == "edit":
         cmd_edit(base, args.id)
