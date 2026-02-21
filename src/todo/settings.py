@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 DEFAULTS: dict[str, Any] = {
-    "server": {"host": "0.0.0.0", "port": 8001},
+    "server": {"host": "100.64.144.22", "port": 8001},
 }
 
 

@@ -28,7 +28,7 @@ def main(argv: list[str] | None = None) -> None:
         choices=["start", "stop", "restart", "status"],
         help="Server action (default: start)",
     )
-    serve_parser.add_argument("--host", default="0.0.0.0")
+    serve_parser.add_argument("--host", default="100.64.144.22")
     serve_parser.add_argument("--port", type=int, default=8001)
 
     # ── todo run ──
@@ -56,7 +56,7 @@ def main(argv: list[str] | None = None) -> None:
     elif args.group == "run":
         if args.command == "load":
             from todo.joplin import load_from_joplin
-            load_from_joplin(data_dir, "http://localhost:8001")
+            load_from_joplin(data_dir, "http://100.64.144.22:8001")
 
     # ── query ──
     elif args.group == "query":
@@ -155,7 +155,7 @@ def _handle_serve(args, data_dir: Path) -> None:
             time.sleep(1)
             try:
                 import httpx
-                httpx.get(f"http://localhost:{args.port}/tasks", timeout=2)
+                httpx.get(f"http://{args.host}:{args.port}/tasks", timeout=2)
                 print(f"API server started (pid {proc.pid}, port {args.port}).")
                 return
             except Exception:
