@@ -6,7 +6,7 @@ import json
 import os
 import subprocess
 import tempfile
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import httpx
@@ -206,6 +206,26 @@ def cmd_delete(base: str, task_id: int) -> None:
     console.print(f"[green]Deleted task {task_id}.[/green]")
 
 
+def cmd_postpone(base: str, task_id: int, days: int) -> None:
+    resp = _get(f"{base}/tasks")
+    tasks = resp.json()
+    task = next((t for t in tasks if t["id"] == task_id), None)
+    if not task:
+        console.print(f"[yellow]Task {task_id} not found.[/yellow]")
+        raise SystemExit(1)
+
+    old_date = task["date"]
+    new_date = (datetime.strptime(old_date, "%Y-%m-%d").date()
+                + timedelta(days=days)).isoformat()
+
+    _put(f"{base}/tasks/{task_id}", {
+        "date": new_date,
+        "headline": task["headline"],
+        "context": task.get("context", ""),
+    })
+    console.print(f"[green]Postponed task {task_id}: {old_date} → {new_date}[/green]")
+
+
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
@@ -250,6 +270,11 @@ def main(argv: list[str] | None = None) -> None:
     delete_parser = sub.add_parser("delete", help="Delete a task")
     delete_parser.add_argument("id", type=int, help="Task ID to delete")
 
+    # ── todoq postpone ──
+    postpone_parser = sub.add_parser("postpone", help="Push a task's date forward by N days")
+    postpone_parser.add_argument("id", type=int, help="Task ID to postpone")
+    postpone_parser.add_argument("days", type=int, help="Number of days to postpone")
+
     args = parser.parse_args(argv)
 
     cfg = _load_config(args.data_dir.resolve())
@@ -273,6 +298,9 @@ def main(argv: list[str] | None = None) -> None:
 
     elif args.group == "delete":
         cmd_delete(base, args.id)
+
+    elif args.group == "postpone":
+        cmd_postpone(base, args.id, args.days)
 
 
 if __name__ == "__main__":

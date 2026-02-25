@@ -57,6 +57,8 @@ def main(argv: list[str] | None = None) -> None:
         if args.command == "load":
             from todo.joplin import load_from_joplin
             load_from_joplin(data_dir, "http://100.64.144.22:8001")
+            from todo.recurring import generate_recurring_tasks
+            generate_recurring_tasks(data_dir, "http://100.64.144.22:8001")
 
     # ── query ──
     elif args.group == "query":
