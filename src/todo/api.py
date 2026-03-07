@@ -45,13 +45,12 @@ def get_tasks():
 @app.get("/tasks/window", response_model=list[TaskOut])
 def get_tasks_window(days: int = 7):
     today = date.today()
-    from_date = (today - timedelta(days=days)).isoformat()
     to_date = (today + timedelta(days=days)).isoformat()
     conn = _get_db()
     try:
         rows = conn.execute(
-            "SELECT * FROM tasks WHERE date >= ? AND date <= ? ORDER BY date",
-            (from_date, to_date),
+            "SELECT * FROM tasks WHERE date <= ? ORDER BY date",
+            (to_date,),
         ).fetchall()
         return [dict(r) for r in rows]
     finally:

@@ -142,7 +142,7 @@ def cmd_retrieve_all(base: str) -> None:
 
 def cmd_retrieve_tasks(base: str, days: int) -> None:
     resp = _get(f"{base}/tasks/window", params={"days": days})
-    _show_tasks_table(resp.json(), title=f"Tasks within {days} days")
+    _show_tasks_table(resp.json(), title=f"All past tasks + next {days} days")
 
 
 def cmd_run_load(base: str) -> None:
