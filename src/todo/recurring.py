@@ -34,7 +34,7 @@ def generate_recurring_tasks(data_dir: Path, api_base: str) -> None:
         # Generate all occurrence dates from start_date up to horizon
         current = start
         while current <= horizon:
-            if current >= start and (headline, current.isoformat()) not in existing_set:
+            if current > today and (headline, current.isoformat()) not in existing_set:
                 body = json.dumps({
                     "date": current.isoformat(),
                     "headline": headline,
