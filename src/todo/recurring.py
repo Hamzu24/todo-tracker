@@ -21,8 +21,8 @@ def generate_recurring_tasks(data_dir: Path, api_base: str) -> None:
     existing_tasks = json.loads(resp.read())
     existing_set = {(t["headline"], t["date"]) for t in existing_tasks}
 
-    today = date.today()
-    horizon = today + timedelta(days=60)
+    tomorrow = date.today() + timedelta(days=1)
+    horizon = tomorrow + timedelta(days=60)
     created = 0
 
     for defn in definitions:
@@ -34,7 +34,7 @@ def generate_recurring_tasks(data_dir: Path, api_base: str) -> None:
         # Generate all occurrence dates from start_date up to horizon
         current = start
         while current <= horizon:
-            if current > today and (headline, current.isoformat()) not in existing_set:
+            if current >= tomorrow and (headline, current.isoformat()) not in existing_set:
                 body = json.dumps({
                     "date": current.isoformat(),
                     "headline": headline,
