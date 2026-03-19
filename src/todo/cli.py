@@ -172,6 +172,7 @@ def _handle_serve(args, data_dir: Path) -> None:
             import uvicorn
             api.DB_PATH = (data_dir / "db.sqlite").resolve()
             api.DATA_DIR = data_dir.resolve()
+            api.API_BASE = f"http://{args.host}:{args.port}"
             pid_file.write_text(str(os.getpid()))
             try:
                 uvicorn.run(api.app, host=args.host, port=args.port)

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import contextlib
+import io
 import sqlite3
-import subprocess
-import sys
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -15,6 +15,7 @@ app = FastAPI(title="Todo Tracker")
 # Module-level state, set by cli.py before uvicorn.run()
 DB_PATH: Path = Path("data/db.sqlite")
 DATA_DIR: Path = Path("data")
+API_BASE: str = "http://127.0.0.1:8001"
 
 
 def _get_db() -> sqlite3.Connection:
@@ -106,11 +107,14 @@ def delete_task(task_id: int):
 
 @app.post("/run/load")
 def run_load():
-    result = subprocess.run(
-        [sys.executable, "-m", "todo", "--data-dir", str(DATA_DIR), "run", "load"],
-        capture_output=True, text=True, timeout=120,
-    )
-    output = result.stdout + result.stderr
-    if result.returncode != 0:
-        raise HTTPException(status_code=500, detail=output or "Load failed")
-    return {"status": "ok", "output": output}
+    from todo.joplin import load_from_joplin
+    from todo.recurring import generate_recurring_tasks
+
+    buf = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(buf):
+            load_from_joplin(DATA_DIR, API_BASE)
+            generate_recurring_tasks(DATA_DIR, API_BASE)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=buf.getvalue() + str(exc))
+    return {"status": "ok", "output": buf.getvalue()}
