@@ -275,6 +275,10 @@ def main(argv: list[str] | None = None) -> None:
     postpone_parser.add_argument("id", type=int, help="Task ID to postpone")
     postpone_parser.add_argument("days", type=int, help="Number of days to postpone")
 
+    # ── todoq tui ──
+    tui_parser = sub.add_parser("tui", help="Interactive TUI for managing tasks")
+    tui_parser.add_argument("days", type=int, nargs="?", default=0, help="Lookforward days (default: 0)")
+
     args = parser.parse_args(argv)
 
     cfg = _load_config(args.data_dir.resolve())
@@ -301,6 +305,10 @@ def main(argv: list[str] | None = None) -> None:
 
     elif args.group == "postpone":
         cmd_postpone(base, args.id, args.days)
+
+    elif args.group == "tui":
+        from todo.tui import run_tui
+        run_tui(args.data_dir, args.days)
 
 
 if __name__ == "__main__":
